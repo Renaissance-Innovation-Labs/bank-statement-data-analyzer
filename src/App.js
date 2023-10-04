@@ -2,10 +2,13 @@ import logo from './logo.svg';
 import './App.css';
 import Home from './home';
 
+import { ToastContainer } from 'react-toastify';
+
 function App() {
   return (
     <div className="App">
       <Home/>
+      <ToastContainer />
       {/* <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <p>

@@ -1,5 +1,5 @@
 import { Button } from '@deposits/ui-kit-react';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import FormItem from './component/FormItem';
 import OverviewCard from './component/OverviewCard';
@@ -10,6 +10,8 @@ import {
 // import Chart from 'react-google-charts';
 import { Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+import { toast } from 'react-toastify';
+import { axiosInstance } from './utils/axiosConfig';
 
 export default function Home() {
 
@@ -21,56 +23,141 @@ export default function Home() {
 
   const [selectedFile, setSelectedFile] = useState(null);
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [respData, setIsRespData] = useState();
+  const [pos, setIsPos] = useState(10);
+  const [atm, setIsAtm] = useState(10);
+  const [trans, setIsTrans] = useState(10);
+  const [others, setIsOthers] = useState(10);
+
   const handleFileSelect = (event) => {
     const file = event.target.files[0];
     setSelectedFile(file);
   };
 
   const handleUpload = (event) => {
+
     event.preventDefault(); 
     if (selectedFile) {
       console.log('Selected File:', selectedFile);
     }
   };
 
-  const data = [
-  ["Task", "Hours per Day"],
-  ["Transfers", 20],
-  ["POS withdrawals", 20],
-  ["ATM withdrawals", 20],
-  ["Others", 20],
-];
-
-const options = {
-  title: "My Daily Activities",
-};
-
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-const newData = {
-  labels: ['ATM withdrawals', 'POS withdrawals', 'Others', 'Transfers',],
-  datasets: [
-    {
-      label: '# of Votes',
-      data: [12, 19, 3, 5],
-      backgroundColor: [
-        'rgba(22, 191, 214, 1)',
-        'rgba(247, 101, 163, 1)',
-        'rgba(205, 205, 205, 1)',
-        'rgba(22, 91, 170, 1)',
+// const [chartData, setChartData] = useState({
+//     labels: ['ATM withdrawals', 'POS withdrawals', 'Others', 'Transfers'],
+//     datasets: [
+//       {
+//         label: '# of Votes',
+//         data: [atm, pos, others, trans], // Initialize data with state values
+//         backgroundColor: [
+//           'rgba(22, 191, 214, 1)',
+//           'rgba(247, 101, 163, 1)',
+//           'rgba(205, 205, 205, 1)',
+//           'rgba(22, 91, 170, 1)',
+//         ],
+//         borderColor: [
+//           'rgba(22, 191, 214, 1)',
+//           'rgba(247, 101, 163, 1)',
+//           'rgba(205, 205, 205, 1)',
+//           'rgba(22, 91, 170, 1)',
+//         ],
+//         borderWidth: 1,
+//       },
+//     ],
+//   });
+
+useEffect(() => {
+    setChartData((prevChartData) => ({
+      ...prevChartData,
+      datasets: [
+        {
+          ...prevChartData.datasets[0],
+          data: [atm, pos, others, trans],
+        },
       ],
-      borderColor: [
-        'rgba(22, 191, 214, 1)',
-        'rgba(247, 101, 163, 1)',
-        'rgba(205, 205, 205, 1)',
-        'rgba(22, 91, 170, 1)',
-      ],
-      borderWidth: 1,
-    },
-  ],
-};
+    }));
+  }, [pos, atm, trans, others]);
+
+  // useEffect(() => {
+  //   const updatedData = updateChartData();
+  //   setChartData(updatedData); // Update the chart data
+  // }, [pos, atm, trans, others]);
+
+  const [chartData, setChartData] = useState({
+    labels: ['ATM withdrawals', 'POS withdrawals', 'Others', 'Transfers'],
+    datasets: [
+      {
+        label: 'financial breakdown',
+        data: [atm, pos, others, trans],
+        backgroundColor: [
+          'rgba(22, 191, 214, 1)',
+          'rgba(247, 101, 163, 1)',
+          'rgba(205, 205, 205, 1)',
+          'rgba(22, 91, 170, 1)',
+        ],
+        borderColor: [
+          'rgba(22, 191, 214, 1)',
+          'rgba(247, 101, 163, 1)',
+          'rgba(205, 205, 205, 1)',
+          'rgba(22, 91, 170, 1)',
+        ],
+        borderWidth: 1,
+      },
+    ],
+  });
+
+  // const newData = {
+  //   labels: ['ATM withdrawals', 'POS withdrawals', 'Others', 'Transfers'],
+  //   datasets: [
+  //     {
+  //       label: '# of Votes',
+  //       data: [atm, pos, others, trans], // Initialize data with state values
+  //       backgroundColor: [
+  //         'rgba(22, 191, 214, 1)',
+  //         'rgba(247, 101, 163, 1)',
+  //         'rgba(205, 205, 205, 1)',
+  //         'rgba(22, 91, 170, 1)',
+  //       ],
+  //       borderColor: [
+  //         'rgba(22, 191, 214, 1)',
+  //         'rgba(247, 101, 163, 1)',
+  //         'rgba(205, 205, 205, 1)',
+  //         'rgba(22, 91, 170, 1)',
+  //       ],
+  //       borderWidth: 1,
+  //     },
+  //   ],
+  // };
+
+// const newData = {
+//   labels: ['ATM withdrawals', 'POS withdrawals', 'Others', 'Transfers',],
+//   datasets: [
+//     {
+//       label: '# of Votes',
+//       data: [20, 30, 20, 30],
+//       backgroundColor: [
+//         'rgba(22, 191, 214, 1)',
+//         'rgba(247, 101, 163, 1)',
+//         'rgba(205, 205, 205, 1)',
+//         'rgba(22, 91, 170, 1)',
+//       ],
+//       borderColor: [
+//         'rgba(22, 191, 214, 1)',
+//         'rgba(247, 101, 163, 1)',
+//         'rgba(205, 205, 205, 1)',
+//         'rgba(22, 91, 170, 1)',
+//       ],
+//       borderWidth: 1,
+//     },
+//   ],
+// };
 
 const handleScope = async (event) => {
+
+  setIsSubmitting(true);
 
     if (!selectedFile) {
       alert('Please select a file.');
@@ -81,20 +168,33 @@ const handleScope = async (event) => {
     formData.append('statement', selectedFile);
 
     try {
-      const response = await fetch('https://findive.vercel.app/api/v1/upload', {
-        method: 'POST',
-        body: formData,
-      });
+      const res = await axiosInstance.post('/upload', formData);
 
-      if (response.ok) {
-        alert('File uploaded successfully!');
-        console.log(response.body);
-      } else {
-        alert('File upload failed.');
+      if (res?.data?.status === "success") {
+        // toast.success('File uploaded succesfully!');
+
+        setIsSubmitting(false);
+        setIsRespData(res?.data?.data);
+
+        setIsPos(respData?.summary?.pos);
+        setIsAtm(respData?.summary?.atm);
+        setIsTrans(respData?.summary?.transfers);
+        setIsOthers(respData?.summary?.others);
+
+        console.log(respData?.summary?.pos);
+        console.log(respData?.summary?.atm);
+        console.log(respData?.summary?.others);
+        console.log(respData?.summary?.transfers);
+
+        console.log(res?.data);
+
+        // console.log(respData);
+
       }
-    } catch (error) {
+    } catch (err) {
+      setIsSubmitting(false);
+      // toast.error(err?.response?.data?.message);
 
-      console.error('Error:', error);
     }
   };
 
@@ -111,7 +211,7 @@ const handleScope = async (event) => {
         <form onSubmit={handleUpload}>
 
           {selectedFile ? 
-          (<div className="bg-[#2D88F0] mt-16 mb-2 w-[200px] text-sm rounded-full px-2 py-2 text-white">
+          (<div className="bg-[#2D88F0] mt-16 mb-2 w-[200px] text-sm rounded-full px-4 py-2 text-white">
               {selectedFile.name}
             </div>) :
             (<div className="w-full mt-16 text-sm rounded-full px-2 py-2 text-[#939393]">
@@ -145,7 +245,7 @@ const handleScope = async (event) => {
                 disable={errors}
                 onClick={() => handleScope()}
               >
-                Scope this file
+                 {isSubmitting ? 'Scoping this file...' : 'Scope this file'}
               </Button>
             </div>
       </section>
@@ -163,13 +263,13 @@ const handleScope = async (event) => {
 
             <div >
               <p className={`text-white text-start text-[32px] font-[600]`}>
-                ₦0
+                ₦{respData?.currentBalance || 0}
               </p>
 
             </div>
 
             <div className={`text-start text-[#E0E0E0] text-xs font-[500] mt-20`}>
-              0112938472 Deborah Inyang (Gtbank)
+              {respData?.accountNumber} {respData?.accountName} ({respData?.bankName})
             </div>
 
           </div>
@@ -193,7 +293,7 @@ const handleScope = async (event) => {
 
             <div >
               <p className={`text-[#333333] text-start text-[24px] font-[600]`}>
-                ₦0
+                ₦{respData?.totalLodgements || 0}
               </p>
 
             </div>
@@ -217,7 +317,7 @@ const handleScope = async (event) => {
 
             <div >
               <p className={`text-[#333333] text-start text-[28px] font-[600]`}>
-                ₦0
+                ₦{respData?.totalWithdrawals || 0}
               </p>
 
             </div>
@@ -240,7 +340,7 @@ const handleScope = async (event) => {
               </p>
 
                <p className={`text-[#1B1B1B] text-start text-sm font-[400] py-1`}>
-                June 13th, 2023 - September 25th, 2023
+                {respData?.period}
               </p>
 
             </div>
@@ -248,7 +348,7 @@ const handleScope = async (event) => {
             <div className='mt-6 border-[1px]'>
             </div>
 
-            <Pie data={newData} className='mb-8'/>
+            <Pie data={chartData} className='mb-8'/>
 
 
             {/* <Chart
